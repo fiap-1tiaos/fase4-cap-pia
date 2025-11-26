@@ -4,11 +4,18 @@ import pandas as pd
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
-load_dotenv()
-
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_DSN = os.getenv("DB_DSN")
+# Tentar carregar do Streamlit secrets primeiro, depois do .env
+try:
+    import streamlit as st
+    DB_USER = st.secrets.get("DB_USER", os.getenv("DB_USER"))
+    DB_PASSWORD = st.secrets.get("DB_PASSWORD", os.getenv("DB_PASSWORD"))
+    DB_DSN = st.secrets.get("DB_DSN", os.getenv("DB_DSN"))
+except (ImportError, FileNotFoundError):
+    # Fallback para .env quando não estiver no Streamlit
+    load_dotenv()
+    DB_USER = os.getenv("DB_USER")
+    DB_PASSWORD = os.getenv("DB_PASSWORD")
+    DB_DSN = os.getenv("DB_DSN")
 
 def get_connection():
     """
